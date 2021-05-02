@@ -3,9 +3,11 @@ import pytest
 from unittest.mock import patch
 import json
 import tempfile
-from dotenv import load_dotenv
-load_dotenv()
-from app.resources import app
+
+from app.application import FlaskApplication
+FlaskApplication.construct_app()
+app = FlaskApplication.APP
+
 
 mock_photos =  [
     {'farm': '66', 'id': '51150463332', 'isfamily': '0', 'isfriend': '0', 'ispublic': '1', 'owner': '192068950@N02',
