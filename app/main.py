@@ -6,7 +6,7 @@ from app.application import FlaskApplication
 
 logging.basicConfig(level=logging.DEBUG if Config.DEBUG else logging.INFO)
 
+app = FlaskApplication.construct_app()
 
 if __name__ == '__main__':
-    FlaskApplication.construct_app()
-    FlaskApplication.run()
+    app.run()

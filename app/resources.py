@@ -51,7 +51,7 @@ class FlickrFavorite(Resource):
         order_by = args.pop('order_by', None)
         if order_by:
             if not hasattr(FlickrPost, order_by):
-                return {'error': f'unknown fields to be ordered by: {order_by}'}
+                return {'error': f'unknown fields to be ordered by: {order_by}'}, 400
             field_to_order_by = getattr(FlickrPost, order_by)
 
         order = args.pop('order', None)
@@ -64,7 +64,7 @@ class FlickrFavorite(Resource):
                 page = int(page)
         except ValueError as exc:
             logging.exception('Invalid page=%r parameter', page)
-            return {'error': f'failed parsing page parameter: {page}'}
+            return {'error': f'failed parsing page parameter: {page}'}, 400
 
         # All other parameters are considered for search
         qs = FlickrPost.query
@@ -105,7 +105,7 @@ class FlickrFavorite(Resource):
         """
         logging.debug('Delete Favorite request with args=%r', request.args)
         if 'id' not in request.args:
-            return {'error': f'id paramter is required for deletion'}, 404
+            return {'error': f'id paramter is required for deletion'}, 400
 
         ids_to_delete = request.args.get('id').split(',')
 

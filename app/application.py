@@ -26,8 +26,4 @@ class FlaskApplication:
         from app.resources import assign_resources
         assign_resources(cls.API)
 
-    @classmethod
-    def run(cls):
-        logging.info("Start Favorites Feed app")
-        assert cls.APP
-        cls.APP.run()
+        return cls.APP
