@@ -1,7 +1,7 @@
 import logging
 import os
 from sqlalchemy import desc, asc, or_
-from flask import Flask, request
+from flask import Flask, request, url_for
 from flask_restful import Api, Resource, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 from app.providers import FlickrProvider
@@ -9,7 +9,11 @@ from app.providers import FlickrProvider
 
 feed_post = { 'id': fields.Integer, 'title': fields.String, 'owner': fields.String, 'secret': fields.String,
               'server': fields.String}
-feed_response = {'error': fields.String, 'data': fields.Nested(feed_post, allow_null=True)}
+feed_response = {'error': fields.String,
+                 'data': fields.Nested(feed_post, allow_null=True),
+                 'prev_url': fields.String,
+                 'next_url': fields.String,
+                }
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DB_CONN_STR']
@@ -43,10 +47,12 @@ class FlickrFeed(Resource):
     @marshal_with(feed_response)
     def get(self):
         logging.debug("Feed request with args=%r", request.args)
-        return {'data': PROVIDER.get_photos(**request.args)}
+        return {'data': self.PROVIDER.get_photos(**request.args)}
 
 
 class FlickrFavorite(Resource):
+    POSTS_PER_PAGE = 10
+
     @marshal_with(feed_response)
     def get(self):
         logging.debug("Get Favorite request with args=%r", request.args)
@@ -64,6 +70,8 @@ class FlickrFavorite(Resource):
         if _desc:
             asc_or_desc = desc
 
+        page = int(args.pop('page', 1))
+
         qs = FlickrPost.query
         filters = []
         for field, value  in args.items():
@@ -74,8 +82,12 @@ class FlickrFavorite(Resource):
             logging.debug("search by: %r", filters)
             qs = qs.filter(or_(*filters))
     
-        posts = qs.order_by(asc_or_desc(field_to_order_by)).all()
-        return {'data': [post.to_dict() for post in posts]}
+        posts = qs.order_by(asc_or_desc(field_to_order_by)).paginate(page, self.POSTS_PER_PAGE, False)
+
+        next_url = url_for('flickrfavorite', page=posts.next_num) if posts.has_next else None
+        prev_url = url_for('flickrfavorite', page=posts.prev_num) if posts.has_prev else None
+
+        return {'data': [post.to_dict() for post in posts.items], 'prev_url': prev_url, 'next_url': next_url}
 
     def post(self):
         logging.debug("Post Favorite request with json=%r", request.json)
