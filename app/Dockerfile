@@ -11,7 +11,7 @@ RUN adduser -D favorites_browser
 WORKDIR /home/favorites_browser
 ENV PYTHONPATH=/home/favorites_browser
 COPY --from=BASE /home/favorites_browser/venv ./venv
-RUN apk add --no-cache postgresql-dev
+RUN apk add --no-cache postgresql-libs
 ADD *.py app/
 RUN chown -R favorites_browser:favorites_browser ./
 USER favorites_browser
