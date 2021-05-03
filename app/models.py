@@ -9,7 +9,7 @@ FLICKR_POST_FIELDS = {'id': fields.Integer, 'title': fields.String, 'owner': fie
 
 
 class FlickrPost(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     title = db.Column(db.String(80), unique=False, nullable=False)
     owner = db.Column(db.String(80), unique=False, nullable=False)
     secret = db.Column(db.String(80), unique=False, nullable=False)

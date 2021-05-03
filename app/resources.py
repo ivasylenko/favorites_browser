@@ -26,7 +26,9 @@ class FlickrFeed(Resource):
         """
         logging.debug('Get Flickr Posts: args=%r', request.args)
         text = request.args.get('text')
-        return {'data': self.PROVIDER.get_photos(text=text)}
+        posts = self.PROVIDER.get_photos(text=text)
+        logging.debug("Fetched posts: %r", posts)
+        return {'data': posts}
 
 
 class FlickrFavorite(Resource):
@@ -75,8 +77,11 @@ class FlickrFavorite(Resource):
 
         if filters:
             qs = qs.filter(or_(*filters))
-    
-        posts = qs.order_by(asc_or_desc(field_to_order_by)).paginate(page, Config.POSTS_PER_PAGE, False)
+
+        if field_to_order_by:
+            qs = qs.order_by(asc_or_desc(field_to_order_by))
+
+        posts = qs.paginate(page, Config.POSTS_PER_PAGE, False)
         
         data = [post.to_dict() for post in posts.items]
         next_url = url_for('flickrfavorite', page=posts.next_num) if posts.has_next else None
