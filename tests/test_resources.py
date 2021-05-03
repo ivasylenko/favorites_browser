@@ -52,7 +52,7 @@ def test_fetch_recent_photos(mock_get_photos, client):
     result = json.loads(response.data.decode('utf-8'))
     assert mock_get_photos.call_count == 1
     call = mock_get_photos.mock_calls[0]
-    assert not call.kwargs
+    assert call.kwargs.get('text') is None
     assert result.get('error') is None
     assert len(result.get('data')) == 2
 

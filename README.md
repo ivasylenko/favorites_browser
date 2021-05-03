@@ -1,5 +1,4 @@
-To run Favorites Browser:
-
+To run Favorites Browser in docker compose:
 ```
 cat .env
 DB_PASSWORD=xxxx
@@ -9,22 +8,22 @@ DEBUG=true
 docker-compose --env-file .env up
 ```
 
-Sample feed query
+Running tests:
 ```
-http://127.0.0.1:5000/feed?text=Milky
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r app/requirements.txt
+
+PYTHONPATH=. pytest tests/test_resources.py
 ```
 
-Sample mark request:
+Sample queries:
 ```
+curl http://127.0.0.1:5000/feed?text=Milky
+
 curl --header "Content-Type: application/json"   --request POST   --data '{"id": 13, "title": "Eastern Pondhawk", "owner": "149638594@N05", "secret": "fba1c7cc32", "server": "2"}' http://127.0.0.1:5000/favorites
-```
 
-Sample query
-```
-http://127.0.0.1:5000/favorites?order_by=server&order=asc&page=2
-```
+curl http://127.0.0.1:5000/favorites?order_by=server&order=asc&page=2
 
-Sample unmark
-```
 curl --request DELETE http://127.0.0.1:5000/favorites?id=51150451497
 ```
